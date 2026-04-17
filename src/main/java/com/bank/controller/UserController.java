@@ -2,6 +2,7 @@ package com.bank.controller;
 
 import com.bank.dto.RegisterRequest;
 import com.bank.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +15,7 @@ public class UserController {
 
     //  Register User API
     @PostMapping("/register")
-    public String registerUser(@RequestBody RegisterRequest request) {
+    public String registerUser(@Valid @RequestBody RegisterRequest request) {
 
         userService.registerUser(request);
 
