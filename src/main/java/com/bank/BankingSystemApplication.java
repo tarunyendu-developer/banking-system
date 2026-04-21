@@ -1,6 +1,8 @@
 package com.bank;
 
+import com.bank.entity.Account;
 import com.bank.entity.User;
+import com.bank.repository.AccountRepository;
 import com.bank.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -29,6 +31,25 @@ public class BankingSystemApplication {
             userRepository.save(user);
 
             System.out.println("User saved in DB");
+        };
+    }
+
+    @Bean
+    public CommandLineRunner testAccountRepo(AccountRepository accountRepo,
+                                             UserRepository userRepo) {
+        return args -> {
+
+            User user = userRepo.findById(1L).orElseThrow();
+
+            Account acc = new Account();
+            acc.setAccountNumber("ACC1001");
+            acc.setUser(user);
+            acc.setAccountType(Account.AccountType.SAVINGS);
+            acc.setBalance(new java.math.BigDecimal("5000"));
+
+            accountRepo.save(acc);
+
+            System.out.println("Account saved ");
         };
     }
 }
