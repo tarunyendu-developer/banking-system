@@ -1,10 +1,13 @@
 package com.bank.controller;
 
 import com.bank.dto.CreateAccountRequest;
-import com.bank.security.JwtUtil;
+import com.bank.entity.Account;
 import com.bank.service.AccountService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/accounts")
@@ -12,20 +15,17 @@ import org.springframework.web.bind.annotation.*;
 public class AccountController {
 
     private final AccountService accountService;
-    private final JwtUtil jwtUtil;
 
     @PostMapping
-    public String createAccount(@RequestBody CreateAccountRequest request,
-                                @RequestHeader("Authorization") String authHeader) {
-
-        //  Extract token
-        String token = authHeader.substring(7);
-
-        //  Extract username from JWT
-        String username = jwtUtil.getUsernameFromToken(token);
-
+    public String createAccount(@RequestBody CreateAccountRequest request, Authentication authentication) {
+        String username = authentication.getName();
         accountService.createAccount(request, username);
-
         return "Account created successfully 💰";
+    }
+
+    @GetMapping
+    public List<Account> getAccounts(Authentication authentication) {
+        String username = authentication.getName();
+        return accountService.getUserAccounts(username);
     }
 }
