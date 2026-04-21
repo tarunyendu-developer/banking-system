@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.bank.exception.UserAlreadyExistsException;
+import com.bank.dto.LoginRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -36,5 +37,19 @@ public class UserServiceImpl implements UserService {
         user.setIsActive(true);
 
         userRepository.save(user);
+    }
+
+    @Override
+    public boolean login(LoginRequest request) {
+
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        //  compare encrypted password
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Invalid password");
+        }
+
+        return true;
     }
 }

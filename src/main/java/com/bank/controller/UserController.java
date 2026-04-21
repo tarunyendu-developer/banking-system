@@ -1,5 +1,6 @@
 package com.bank.controller;
 
+import com.bank.dto.LoginRequest;
 import com.bank.dto.RegisterRequest;
 import com.bank.service.UserService;
 import jakarta.validation.Valid;
@@ -20,5 +21,13 @@ public class UserController {
         userService.registerUser(request);
 
         return "User registered successfully ";
+    }
+    //Login API
+    @PostMapping("/login")
+    public String login(@RequestBody LoginRequest request) {
+
+        userService.login(request);
+
+        return "Login successful ✅";
     }
 }
