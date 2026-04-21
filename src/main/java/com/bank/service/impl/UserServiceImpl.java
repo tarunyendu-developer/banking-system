@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.bank.exception.UserAlreadyExistsException;
 import com.bank.dto.LoginRequest;
+import com.bank.security.JwtUtil;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +19,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     @Override
     public void registerUser(RegisterRequest request) {
@@ -42,7 +44,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean login(LoginRequest request) {
+    public String login(LoginRequest request) {
 
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
@@ -51,6 +53,7 @@ public class UserServiceImpl implements UserService {
             throw new InvalidCredentialsException("Invalid password");
         }
 
-        return true;
+        //  Generate token
+        return jwtUtil.generateToken(user.getUsername());
     }
 }

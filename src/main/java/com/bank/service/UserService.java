@@ -7,5 +7,5 @@ public interface UserService {
 
     // Register new user
     void registerUser(RegisterRequest request);
-    boolean login(LoginRequest request);
+    String login(LoginRequest request);
 }
