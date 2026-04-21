@@ -1,5 +1,6 @@
 package com.bank.service.impl;
 
+import com.bank.dto.TransactionResponse;
 import com.bank.dto.TransferRequest;
 import com.bank.entity.Account;
 import com.bank.entity.Transaction;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -59,5 +61,32 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setStatus(Transaction.TransactionStatus.SUCCESS);
 
         transactionRepository.save(transaction);
+    }
+
+    @Override
+    public List<TransactionResponse> getTransactionHistory(String accountNumber, String username) {
+
+        Account account = accountRepository
+                .findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+
+        if (!account.getUser().getUsername().equals(username)) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        List<Transaction> transactions =
+                transactionRepository.findByFromAccount_AccountNumberOrToAccount_AccountNumber(
+                        accountNumber, accountNumber
+                );
+
+        return transactions.stream().map(tx -> TransactionResponse.builder()
+                .transactionRef(tx.getTransactionRef())
+                .fromAccount(tx.getFromAccount().getAccountNumber())
+                .toAccount(tx.getToAccount().getAccountNumber())
+                .amount(tx.getAmount())
+                .status(tx.getStatus().name())
+                .createdAt(tx.getCreatedAt())
+                .build()
+        ).toList();
     }
 }
