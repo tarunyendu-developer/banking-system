@@ -6,6 +6,7 @@ import com.bank.repository.UserRepository;
 import com.bank.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.bank.exception.UserAlreadyExistsException;
 
 @Service
 @RequiredArgsConstructor
@@ -16,17 +17,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public void registerUser(RegisterRequest request) {
 
-        //  Check username exists
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
-            throw new RuntimeException("Username already exists");
+            throw new UserAlreadyExistsException("Username already exists");
         }
 
-        //  Check email exists
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already exists");
+            throw new UserAlreadyExistsException("Email already exists");
         }
 
-        // Save user
         User user = new User();
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
