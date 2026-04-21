@@ -1,5 +1,6 @@
 package com.bank.service.impl;
 
+import com.bank.dto.AccountResponse;
 import com.bank.dto.CreateAccountRequest;
 import com.bank.entity.Account;
 import com.bank.entity.User;
@@ -42,8 +43,16 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<Account> getUserAccounts(String username) {
+    public List<AccountResponse> getUserAccounts(String username) {
 
-        return accountRepository.findByUserUsername(username);
+        List<Account> accounts = accountRepository.findByUserUsername(username);
+
+        return accounts.stream().map(acc -> AccountResponse.builder()
+                .accountNumber(acc.getAccountNumber())
+                .accountType(acc.getAccountType().name())
+                .balance(acc.getBalance())
+                .isActive(acc.getIsActive())
+                .build()
+        ).toList();
     }
 }

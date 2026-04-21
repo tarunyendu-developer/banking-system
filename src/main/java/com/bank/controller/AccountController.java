@@ -1,5 +1,6 @@
 package com.bank.controller;
 
+import com.bank.dto.AccountResponse;
 import com.bank.dto.CreateAccountRequest;
 import com.bank.entity.Account;
 import com.bank.service.AccountService;
@@ -24,7 +25,7 @@ public class AccountController {
     }
 
     @GetMapping
-    public List<Account> getAccounts(Authentication authentication) {
+    public List<AccountResponse> getAccounts(Authentication authentication) {
         String username = authentication.getName();
         return accountService.getUserAccounts(username);
     }
