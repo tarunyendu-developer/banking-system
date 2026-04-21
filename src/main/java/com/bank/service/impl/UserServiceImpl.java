@@ -2,6 +2,8 @@ package com.bank.service.impl;
 
 import com.bank.dto.RegisterRequest;
 import com.bank.entity.User;
+import com.bank.exception.InvalidCredentialsException;
+import com.bank.exception.UserNotFoundException;
 import com.bank.repository.UserRepository;
 import com.bank.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -43,11 +45,10 @@ public class UserServiceImpl implements UserService {
     public boolean login(LoginRequest request) {
 
         User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        //  compare encrypted password
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid password");
+            throw new InvalidCredentialsException("Invalid password");
         }
 
         return true;
