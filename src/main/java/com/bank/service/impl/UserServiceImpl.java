@@ -5,6 +5,7 @@ import com.bank.entity.User;
 import com.bank.repository.UserRepository;
 import com.bank.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.bank.exception.UserAlreadyExistsException;
 
@@ -13,6 +14,7 @@ import com.bank.exception.UserAlreadyExistsException;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void registerUser(RegisterRequest request) {
@@ -28,7 +30,7 @@ public class UserServiceImpl implements UserService {
         User user = new User();
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setFullName(request.getFullName());
         user.setPhoneNumber(request.getPhoneNumber());
         user.setIsActive(true);
