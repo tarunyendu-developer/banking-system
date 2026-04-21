@@ -22,14 +22,12 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public void transfer(TransferRequest request, String username) {
 
-        //  Get sender account
         Account fromAccount = accountRepository
-                .findByAccountNumber(request.getFromAccountNumber())
+                .findByAccountNumberForUpdate(request.getFromAccountNumber())
                 .orElseThrow(() -> new RuntimeException("Sender account not found"));
 
-        //  Get receiver account
         Account toAccount = accountRepository
-                .findByAccountNumber(request.getToAccountNumber())
+                .findByAccountNumberForUpdate(request.getToAccountNumber())
                 .orElseThrow(() -> new RuntimeException("Receiver account not found"));
 
         //  Check sender belongs to logged-in user
