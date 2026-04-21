@@ -28,7 +28,7 @@ public class BankingSystemApplication {
 
             userRepository.save(user);
 
-            System.out.println("User saved in DB ✅");
+            System.out.println("User saved in DB");
         };
     }
 }

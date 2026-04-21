@@ -16,7 +16,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public void registerUser(RegisterRequest request) {
 
-        // Convert DTO → Entity
+        //  Check username exists
+        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+            throw new RuntimeException("Username already exists");
+        }
+
+        //  Check email exists
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RuntimeException("Email already exists");
+        }
+
+        // Save user
         User user = new User();
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
