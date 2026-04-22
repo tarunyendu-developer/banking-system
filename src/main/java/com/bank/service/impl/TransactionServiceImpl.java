@@ -4,6 +4,9 @@ import com.bank.dto.TransactionResponse;
 import com.bank.dto.TransferRequest;
 import com.bank.entity.Account;
 import com.bank.entity.Transaction;
+import com.bank.exception.AccountNotFoundException;
+import com.bank.exception.InsufficientBalanceException;
+import com.bank.exception.UnauthorizedAccessException;
 import com.bank.repository.AccountRepository;
 import com.bank.repository.TransactionRepository;
 import com.bank.service.AuditService;
@@ -28,20 +31,20 @@ public class TransactionServiceImpl implements TransactionService {
 
         Account fromAccount = accountRepository
                 .findByAccountNumberForUpdate(request.getFromAccountNumber())
-                .orElseThrow(() -> new RuntimeException("Sender account not found"));
+                .orElseThrow(() -> new AccountNotFoundException("Sender account not found"));
 
         Account toAccount = accountRepository
                 .findByAccountNumberForUpdate(request.getToAccountNumber())
-                .orElseThrow(() -> new RuntimeException("Receiver account not found"));
+                .orElseThrow(() -> new AccountNotFoundException("Receiver account not found"));
 
         if (!fromAccount.getUser().getUsername().equals(username)) {
             auditService.log(username, "TRANSFER", "Unauthorized access attempt", "FAILED");
-            throw new RuntimeException("Unauthorized access");
+            throw new UnauthorizedAccessException("Unauthorized access");
         }
 
         if (fromAccount.getBalance().compareTo(request.getAmount()) < 0) {
             auditService.log(username, "TRANSFER", "Insufficient balance", "FAILED");
-            throw new RuntimeException("Insufficient balance");
+            throw new InsufficientBalanceException("Insufficient balance");
         }
 
         fromAccount.setBalance(fromAccount.getBalance().subtract(request.getAmount()));
@@ -72,10 +75,10 @@ public class TransactionServiceImpl implements TransactionService {
 
         Account account = accountRepository
                 .findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new AccountNotFoundException("Account not found"));
 
         if (!account.getUser().getUsername().equals(username)) {
-            throw new RuntimeException("Unauthorized");
+            throw new UnauthorizedAccessException("Unauthorized");
         }
 
         List<Transaction> transactions =

@@ -4,6 +4,7 @@ import com.bank.dto.AccountResponse;
 import com.bank.dto.CreateAccountRequest;
 import com.bank.entity.Account;
 import com.bank.entity.User;
+import com.bank.exception.UserNotFoundException;
 import com.bank.repository.AccountRepository;
 import com.bank.repository.UserRepository;
 import com.bank.service.AccountService;
@@ -11,9 +12,8 @@ import com.bank.service.AuditService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.Random;
+
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +27,7 @@ public class AccountServiceImpl implements AccountService {
     public void createAccount(CreateAccountRequest request, String username) {
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         String accountNumber = "ACC" + (100000 + new java.util.Random().nextInt(900000));
 
