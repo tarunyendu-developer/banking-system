@@ -6,22 +6,24 @@ import com.bank.entity.Account;
 import com.bank.entity.Transaction;
 import com.bank.repository.AccountRepository;
 import com.bank.repository.TransactionRepository;
+import com.bank.service.AuditService;
 import com.bank.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class TransactionServiceImpl implements TransactionService {
+
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
+    private final AuditService auditService;
 
-    @Transactional
     @Override
+    @Transactional
     public void transfer(TransferRequest request, String username) {
 
         Account fromAccount = accountRepository
@@ -32,35 +34,37 @@ public class TransactionServiceImpl implements TransactionService {
                 .findByAccountNumberForUpdate(request.getToAccountNumber())
                 .orElseThrow(() -> new RuntimeException("Receiver account not found"));
 
-        //  Check sender belongs to logged-in user
         if (!fromAccount.getUser().getUsername().equals(username)) {
-            throw new RuntimeException("Unauthorized access to account");
+            auditService.log(username, "TRANSFER", "Unauthorized access attempt", "FAILED");
+            throw new RuntimeException("Unauthorized access");
         }
 
-        //  Check sufficient balance
         if (fromAccount.getBalance().compareTo(request.getAmount()) < 0) {
+            auditService.log(username, "TRANSFER", "Insufficient balance", "FAILED");
             throw new RuntimeException("Insufficient balance");
         }
 
-        //  Deduct money
         fromAccount.setBalance(fromAccount.getBalance().subtract(request.getAmount()));
-
-        //  Add money
         toAccount.setBalance(toAccount.getBalance().add(request.getAmount()));
 
-        //   Save accounts
         accountRepository.save(fromAccount);
         accountRepository.save(toAccount);
 
-        //  Save transaction
-        Transaction transaction = new Transaction();
-        transaction.setTransactionRef(UUID.randomUUID().toString());
-        transaction.setFromAccount(fromAccount);
-        transaction.setToAccount(toAccount);
-        transaction.setAmount(request.getAmount());
-        transaction.setStatus(Transaction.TransactionStatus.SUCCESS);
+        Transaction tx = new Transaction();
+        tx.setTransactionRef(java.util.UUID.randomUUID().toString());
+        tx.setFromAccount(fromAccount);
+        tx.setToAccount(toAccount);
+        tx.setAmount(request.getAmount());
+        tx.setStatus(Transaction.TransactionStatus.SUCCESS);
 
-        transactionRepository.save(transaction);
+        transactionRepository.save(tx);
+
+        //  SUCCESS LOG
+        auditService.log(username, "TRANSFER",
+                "Transferred " + request.getAmount() +
+                        " from " + fromAccount.getAccountNumber() +
+                        " to " + toAccount.getAccountNumber(),
+                "SUCCESS");
     }
 
     @Override

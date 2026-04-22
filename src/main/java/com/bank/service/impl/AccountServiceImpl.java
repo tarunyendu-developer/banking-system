@@ -7,6 +7,7 @@ import com.bank.entity.User;
 import com.bank.repository.AccountRepository;
 import com.bank.repository.UserRepository;
 import com.bank.service.AccountService;
+import com.bank.service.AuditService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,26 +21,27 @@ public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
     private final UserRepository userRepository;
+    private final AuditService auditService;
 
     @Override
     public void createAccount(CreateAccountRequest request, String username) {
 
-        //  get user
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        //  generate account number
-        String accountNumber = "ACC" + (100000 + new Random().nextInt(900000));
+        String accountNumber = "ACC" + (100000 + new java.util.Random().nextInt(900000));
 
-        //  create account
         Account account = new Account();
         account.setAccountNumber(accountNumber);
         account.setUser(user);
         account.setAccountType(Account.AccountType.valueOf(request.getAccountType()));
-        account.setBalance(BigDecimal.ZERO);
+        account.setBalance(java.math.BigDecimal.ZERO);
         account.setIsActive(true);
 
         accountRepository.save(account);
+
+        //  LOG
+        auditService.log(username, "CREATE_ACCOUNT", "Account created: " + accountNumber, "SUCCESS");
     }
 
     @Override

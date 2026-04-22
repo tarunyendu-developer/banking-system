@@ -5,6 +5,7 @@ import com.bank.entity.User;
 import com.bank.exception.InvalidCredentialsException;
 import com.bank.exception.UserNotFoundException;
 import com.bank.repository.UserRepository;
+import com.bank.service.AuditService;
 import com.bank.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,15 +21,18 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final AuditService auditService;
 
     @Override
     public void registerUser(RegisterRequest request) {
 
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+            auditService.log(request.getUsername(), "REGISTER", "Username already exists", "FAILED");
             throw new UserAlreadyExistsException("Username already exists");
         }
 
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            auditService.log(request.getUsername(), "REGISTER", "Email already exists", "FAILED");
             throw new UserAlreadyExistsException("Email already exists");
         }
 
@@ -41,6 +45,9 @@ public class UserServiceImpl implements UserService {
         user.setIsActive(true);
 
         userRepository.save(user);
+
+        //  SUCCESS LOG
+        auditService.log(user.getUsername(), "REGISTER", "User registered successfully", "SUCCESS");
     }
 
     @Override

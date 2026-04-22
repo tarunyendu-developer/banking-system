@@ -21,7 +21,7 @@ public class AccountController {
     public String createAccount(@RequestBody CreateAccountRequest request, Authentication authentication) {
         String username = authentication.getName();
         accountService.createAccount(request, username);
-        return "Account created successfully 💰";
+        return "Account created successfully ";
     }
 
     @GetMapping
