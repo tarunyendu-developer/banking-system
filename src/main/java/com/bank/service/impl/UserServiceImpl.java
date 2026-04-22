@@ -1,6 +1,7 @@
 package com.bank.service.impl;
 
 import com.bank.dto.RegisterRequest;
+import com.bank.entity.Role;
 import com.bank.entity.User;
 import com.bank.exception.InvalidCredentialsException;
 import com.bank.exception.UserNotFoundException;
@@ -43,6 +44,7 @@ public class UserServiceImpl implements UserService {
         user.setFullName(request.getFullName());
         user.setPhoneNumber(request.getPhoneNumber());
         user.setIsActive(true);
+        user.setRole(Role.ROLE_USER);
 
         userRepository.save(user);
 
@@ -61,6 +63,6 @@ public class UserServiceImpl implements UserService {
         }
 
         //  Generate token
-        return jwtUtil.generateToken(user.getUsername());
+        return jwtUtil.generateToken(user.getUsername(), user.getRole().name());
     }
 }

@@ -22,21 +22,14 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
-
-                //  VERY IMPORTANT (JWT = stateless)
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        //  Public APIs
                         .requestMatchers("/api/users/register", "/api/users/login").permitAll()
-
-                        //  Secure all others
+                        .requestMatchers("/api/accounts/**").hasRole("USER")
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
-
-                //  Add JWT filter
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

@@ -33,6 +33,9 @@ public class User {
     @Column(nullable = false)
     private Boolean isActive = true;
 
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 }
