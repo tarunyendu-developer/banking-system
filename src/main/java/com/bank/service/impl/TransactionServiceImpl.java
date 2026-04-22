@@ -46,6 +46,9 @@ public class TransactionServiceImpl implements TransactionService {
             auditService.log(username, "TRANSFER", "Insufficient balance", "FAILED");
             throw new InsufficientBalanceException("Insufficient balance");
         }
+        if (request.getFromAccountNumber().equals(request.getToAccountNumber())) {
+            throw new IllegalArgumentException("Cannot transfer to same account");
+        }
 
         fromAccount.setBalance(fromAccount.getBalance().subtract(request.getAmount()));
         toAccount.setBalance(toAccount.getBalance().add(request.getAmount()));

@@ -14,15 +14,22 @@ public class GlobalExceptionHandler {
 
     //  Handle validation errors
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationErrors(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiResponse<?>> handleValidationErrors(MethodArgumentNotValidException ex) {
 
         Map<String, String> errors = new HashMap<>();
 
-        ex.getBindingResult().getFieldErrors().forEach(error -> {
-            errors.put(error.getField(), error.getDefaultMessage());
-        });
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+                errors.put(error.getField(), error.getDefaultMessage())
+        );
 
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(
+                ApiResponse.builder()
+                        .status("ERROR")
+                        .message("Validation failed")
+                        .data(errors)
+                        .build(),
+                HttpStatus.BAD_REQUEST
+        );
     }
 
     @ExceptionHandler(UserAlreadyExistsException.class)
