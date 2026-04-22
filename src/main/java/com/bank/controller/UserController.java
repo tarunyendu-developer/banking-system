@@ -1,5 +1,6 @@
 package com.bank.controller;
 
+import com.bank.dto.ApiResponse;
 import com.bank.dto.LoginRequest;
 import com.bank.dto.RegisterRequest;
 import com.bank.service.UserService;
@@ -15,17 +16,24 @@ public class UserController {
     private final UserService userService;
 
     //  Register User API
+
     @PostMapping("/register")
-    public String registerUser(@Valid @RequestBody RegisterRequest request) {
-
+    public ApiResponse<String> registerUser(@RequestBody RegisterRequest request) {
         userService.registerUser(request);
-
-        return "User registered successfully ";
+        return ApiResponse.<String>builder()
+                .status("SUCCESS")
+                .message("User registered successfully")
+                .data(null)
+                .build();
     }
     //Login API
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest request) {
-
-        return userService.login(request);
+    public ApiResponse<String> login(@RequestBody LoginRequest request) {
+        String token = userService.login(request);
+        return ApiResponse.<String>builder()
+                .status("SUCCESS")
+                .message("Login successful")
+                .data(token)
+                .build();
     }
 }

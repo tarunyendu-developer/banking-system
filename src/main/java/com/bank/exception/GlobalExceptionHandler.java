@@ -1,5 +1,6 @@
 package com.bank.exception;
 
+import com.bank.dto.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -46,10 +47,15 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AccountNotFoundException.class)
-    public ResponseEntity<Map<String, String>> handleAccountNotFound(AccountNotFoundException ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("message", ex.getMessage());
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    public ResponseEntity<ApiResponse<?>> handleAccountNotFound(AccountNotFoundException ex) {
+        return new ResponseEntity<>(
+                ApiResponse.builder()
+                        .status("ERROR")
+                        .message(ex.getMessage())
+                        .data(null)
+                        .build(),
+                HttpStatus.NOT_FOUND
+        );
     }
 
     @ExceptionHandler(InsufficientBalanceException.class)

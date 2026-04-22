@@ -30,7 +30,7 @@ public class Account {
     @Enumerated(EnumType.STRING)
     private AccountType accountType;
 
-    // money → use BigDecimal (IMPORTANT )
+    // money
     @Column(nullable = false)
     private BigDecimal balance = BigDecimal.ZERO;
 
