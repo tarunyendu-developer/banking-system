@@ -5,6 +5,7 @@ import com.bank.dto.ApiResponse;
 import com.bank.dto.CreateAccountRequest;
 import com.bank.entity.Account;
 import com.bank.service.AccountService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -20,11 +21,16 @@ public class AccountController {
 
     // Creating Account
     @PostMapping
-    public String createAccount(@RequestBody CreateAccountRequest request, Authentication authentication) {
-        String username = authentication.getName();
-        accountService.createAccount(request, username);
-        return "Account created successfully ";
+    public ApiResponse<String> createAccount(@Valid @RequestBody CreateAccountRequest request, Authentication auth) {
+
+        accountService.createAccount(request, auth.getName());
+        return ApiResponse.<String>builder()
+                .status("SUCCESS")
+                .message("Account created successfully")
+                .data(null)
+                .build();
     }
+
     // Get Accounts
     @GetMapping
     public ApiResponse<List<AccountResponse>> getAccounts(Authentication auth) {
