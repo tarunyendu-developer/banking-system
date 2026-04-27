@@ -4,6 +4,7 @@ import com.bank.dto.TransactionResponse;
 import com.bank.dto.TransferRequest;
 import com.bank.entity.Account;
 import com.bank.entity.Transaction;
+import com.bank.entity.TransactionType;
 import com.bank.exception.AccountNotFoundException;
 import com.bank.exception.InsufficientBalanceException;
 import com.bank.exception.UnauthorizedAccessException;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -56,14 +58,26 @@ public class TransactionServiceImpl implements TransactionService {
         accountRepository.save(fromAccount);
         accountRepository.save(toAccount);
 
-        Transaction tx = new Transaction();
-        tx.setTransactionRef(java.util.UUID.randomUUID().toString());
-        tx.setFromAccount(fromAccount);
-        tx.setToAccount(toAccount);
-        tx.setAmount(request.getAmount());
-        tx.setStatus(Transaction.TransactionStatus.SUCCESS);
+        //  DEBIT entry
+        Transaction debitTx = new Transaction();
+        debitTx.setTransactionRef(UUID.randomUUID().toString());
+        debitTx.setFromAccount(fromAccount);
+        debitTx.setToAccount(toAccount);
+        debitTx.setAmount(request.getAmount());
+        debitTx.setType(TransactionType.DEBIT);
+        debitTx.setStatus(Transaction.TransactionStatus.SUCCESS);
 
-        transactionRepository.save(tx);
+        //  CREDIT entry
+        Transaction creditTx = new Transaction();
+        creditTx.setTransactionRef(UUID.randomUUID().toString());
+        creditTx.setFromAccount(fromAccount);
+        creditTx.setToAccount(toAccount);
+        creditTx.setAmount(request.getAmount());
+        creditTx.setType(TransactionType.CREDIT);
+        creditTx.setStatus(Transaction.TransactionStatus.SUCCESS);
+
+        transactionRepository.save(debitTx);
+        transactionRepository.save(creditTx);
 
         //  SUCCESS LOG
         auditService.log(username, "TRANSFER",
@@ -94,6 +108,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .fromAccount(tx.getFromAccount().getAccountNumber())
                 .toAccount(tx.getToAccount().getAccountNumber())
                 .amount(tx.getAmount())
+                .type(tx.getType().name())
                 .status(tx.getStatus().name())
                 .createdAt(tx.getCreatedAt())
                 .build()

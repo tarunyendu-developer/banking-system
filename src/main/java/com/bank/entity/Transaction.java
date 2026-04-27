@@ -35,11 +35,15 @@ public class Transaction {
     @Column(nullable = false)
     private BigDecimal amount;
 
+    @Enumerated(EnumType.STRING)
+    private TransactionType type;
+
     // status
     @Enumerated(EnumType.STRING)
     private TransactionStatus status;
 
     private LocalDateTime createdAt = LocalDateTime.now();
+
 
     public enum TransactionStatus {
         SUCCESS,

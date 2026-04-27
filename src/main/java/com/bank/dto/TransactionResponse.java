@@ -14,6 +14,7 @@ public class TransactionResponse {
     private String fromAccount;
     private String toAccount;
     private BigDecimal amount;
+    private String type;
     private String status;
     private LocalDateTime createdAt;
 }
